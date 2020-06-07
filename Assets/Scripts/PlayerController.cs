@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+
+public class PlayerController : MonoBehaviour
+{
+    [SerializeField] private Transform destinationPoint;
+    private NavMeshAgent agent;
+    public bool isChoosenOne = false;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        agent = GetComponent<NavMeshAgent>();
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (isChoosenOne)
+            if (Input.GetMouseButtonDown(1))
+            {
+                RaycastHit hit;
+                if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 100))
+                    agent.destination = hit.point;
+            }
+        //agent.destination = destinationPoint.position;
+    }
+}
