@@ -1,6 +1,6 @@
 ﻿enum Tags
 {
-    Player,
+    Character,
 }
 
 enum SceneTag

@@ -4,16 +4,27 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    
-    // Start is called before the first frame update
-    void Start()
+    GameObject[] characters = new GameObject[8];
+    [SerializeField] GameObject characterPrefab;
+    [SerializeField] GameObject[] topSpawns;
+    [SerializeField] GameObject[] bottomSpawns;
+
+    private void Start()
     {
-        
+        SpawnCharacters();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SpawnCharacters()
     {
-        
+        for (int i = 0; i < 4; i++) {
+            var prefabTop = Instantiate(characterPrefab,
+                                               topSpawns[i].transform.position,
+                                               topSpawns[i].transform.rotation);
+            characters[i] = prefabTop;
+            var prefabBottom = Instantiate(characterPrefab,
+                                                  bottomSpawns[i].transform.position,
+                                                  bottomSpawns[i].transform.rotation);
+            characters[i + 4] = prefabBottom;
+        }
     }
 }
