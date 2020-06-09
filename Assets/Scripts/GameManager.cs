@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public GameObject cam;
+
+    
 
     // Update is called once per frame
     void Update()
@@ -12,11 +15,15 @@ public class GameManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             GameObject newPlayer = Clicked();
-            if (newPlayer.name == "Player" || newPlayer.name == "Character_Elf")
+            if (newPlayer.CompareTag(Tags.Player.ToString()))
             {
-                Transform player = cam.GetComponent<CameraController>().player;
+                PlayerController player = cam.GetComponent<CameraController>().player.GetComponent<PlayerController>();
                 if (player != null)
-                    player.GetComponent<PlayerController>().isChoosenOne = false;
+                {
+                    //PlayerController playerScript = player.GetComponent<PlayerController>();
+                    player.isChoosenOne = false;
+                    player.agent.destination = player.transform.position;
+                }
 
                 cam.GetComponent<CameraController>().player = newPlayer.transform;
                 newPlayer.GetComponent<PlayerController>().isChoosenOne = true;
@@ -34,5 +41,10 @@ public class GameManager : MonoBehaviour
             return hit.collider.gameObject;
         else
             return null;
+    }
+
+    void GameOver()
+    {
+        SceneManager.LoadScene(SceneTag.Menu.ToString());
     }
 }

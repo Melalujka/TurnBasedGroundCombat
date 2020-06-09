@@ -7,7 +7,7 @@ using UnityEngine.AI;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Transform destinationPoint;
-    private NavMeshAgent agent;
+    public NavMeshAgent agent;
     public bool isChoosenOne = false;
 
     // Start is called before the first frame update
