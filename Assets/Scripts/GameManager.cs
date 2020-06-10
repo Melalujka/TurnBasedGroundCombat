@@ -12,18 +12,23 @@ public class GameManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             GameObject newPlayer = Clicked();
-            if (newPlayer.CompareTag(Tags.Character.ToString()))
+            if (newPlayer != null)
             {
-                Transform player = cam.GetComponent<CameraController>().player;
-                if (player != null)
+                Debug.Log("newPlayer.tag" + newPlayer.tag);
+                GameObject player = cam.GetComponent<CameraController>().player;
+                if (Clicked().GetComponent<PlayerController>() != null && !(newPlayer == player))
+                //if (newPlayer.CompareTag(Tags.Character.ToString()) && !(newPlayer == player))
                 {
-                    PlayerController playerScript = player.GetComponent<PlayerController>();
-                    playerScript.isChoosenOne = false;
-                    playerScript.agent.destination = player.transform.position;
-                }
+                    if (player != null)
+                    {
+                        PlayerController playerScript = player.GetComponent<PlayerController>();
+                        playerScript.isChoosenOne = false;
+                        playerScript.agent.destination = player.transform.position;
+                    }
 
-                cam.GetComponent<CameraController>().player = newPlayer.transform;
-                newPlayer.GetComponent<PlayerController>().isChoosenOne = true;
+                    cam.GetComponent<CameraController>().player = newPlayer;
+                    newPlayer.GetComponent<PlayerController>().isChoosenOne = true;
+                }
             }
         }
     }
@@ -32,9 +37,12 @@ public class GameManager : MonoBehaviour
     {
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        RaycastHit hit = new RaycastHit();
+        //RaycastHit hit = new RaycastHit();
+        RaycastHit hit;
+        //Color color = new Color(0.5f, 0.5f, 1.0f);
+        //Debug.DrawLine(Camera.main.transform.position, Input.mousePosition, color);
 
-        if (Physics.Raycast(ray, out hit, 1000))
+        if (Physics.Raycast(ray, out hit, 200))
             return hit.collider.gameObject;
         else
             return null;
@@ -45,3 +53,6 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneTag.Menu.ToString());
     }
 }
+
+////Raycast against a specific collider (plane is a gameObject or Transform)
+//if(plane.collider.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), hit))
