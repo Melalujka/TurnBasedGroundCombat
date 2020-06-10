@@ -8,6 +8,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] GameObject characterPrefab;
     [SerializeField] GameObject[] topSpawns;
     [SerializeField] GameObject[] bottomSpawns;
+    [SerializeField] BattleUI battleUI;
 
     private void Start()
     {
@@ -20,10 +21,12 @@ public class SpawnManager : MonoBehaviour
             var prefabTop = Instantiate(characterPrefab,
                                                topSpawns[i].transform.position,
                                                topSpawns[i].transform.rotation);
+            prefabTop.GetComponent<PlayerController>().battleUI = battleUI;
             characters[i] = prefabTop;
             var prefabBottom = Instantiate(characterPrefab,
                                                   bottomSpawns[i].transform.position,
                                                   bottomSpawns[i].transform.rotation);
+            prefabBottom.GetComponent<PlayerController>().battleUI = battleUI;
             characters[i + 4] = prefabBottom;
         }
     }

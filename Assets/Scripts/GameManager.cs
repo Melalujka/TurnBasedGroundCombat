@@ -36,16 +36,19 @@ public class GameManager : MonoBehaviour
     GameObject Clicked()
     {
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //RaycastHit hit;
 
         //RaycastHit hit = new RaycastHit();
-        RaycastHit hit;
+
         //Color color = new Color(0.5f, 0.5f, 1.0f);
         //Debug.DrawLine(Camera.main.transform.position, Input.mousePosition, color);
 
-        if (Physics.Raycast(ray, out hit, 200))
-            return hit.collider.gameObject;
-        else
-            return null;
+        //if (Physics.Raycast(ray, out hit, 200))
+        //    return hit.collider.gameObject;
+        //else
+        //    return null;
+
+        return Physics.Raycast(ray, out RaycastHit hit, 200) ? hit.collider.gameObject : null;
     }
 
     void GameOver()
