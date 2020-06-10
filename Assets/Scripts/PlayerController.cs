@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
     public bool isChoosenOne = false;
     [SerializeField] LineRenderer lineRenderer;
 
+    public BattleUI battleUI;
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -30,7 +32,7 @@ public class PlayerController : MonoBehaviour
         if (isChoosenOne && Input.GetMouseButtonDown(1))
         {
             SetDestination();
-            BattleUI.singleton.SetSteps(CalculatePathLength(destinationPoint));
+            battleUI.SetSteps(CalculatePathLength(destinationPoint));
         }
     }
 
@@ -51,20 +53,20 @@ public class PlayerController : MonoBehaviour
         Vector3[] path = GetPath(destinationPoint);
 
         // TODO
-        BattleUI.singleton.goButton.onClick.RemoveListener(MoveToDestination);
+        battleUI.goButton.onClick.RemoveListener(MoveToDestination);
 
         lineRenderer.positionCount = path.Length;
         lineRenderer.SetPositions(path);
 
         point.SetActive(true);
         point.transform.position = destinationPoint;
-        BattleUI.singleton.goButton.onClick.AddListener(MoveToDestination);
+        battleUI.goButton.onClick.AddListener(MoveToDestination);
     }
 
     void MoveToDestination()
     {
         agent.destination = destinationPoint;
-        BattleUI.singleton.goButton.onClick.RemoveListener(MoveToDestination);
+        battleUI.goButton.onClick.RemoveListener(MoveToDestination);
     }
 
     float CalculatePathLength(Vector3 targetPosition)

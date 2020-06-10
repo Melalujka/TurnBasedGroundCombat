@@ -5260,6 +5260,7 @@ MonoBehaviour:
   - {fileID: 1161861118}
   - {fileID: 1835990037}
   - {fileID: 1906787286}
+  battleUI: {fileID: 990712921}
 --- !u!4 &1992951946
 Transform:
   m_ObjectHideFlags: 0

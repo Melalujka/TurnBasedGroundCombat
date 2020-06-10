@@ -9,18 +9,6 @@ public class BattleUI : MonoBehaviour
     [SerializeField] Text stepsText;
     public Button goButton;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        if (singleton == null)
-            singleton = this;
-        else
-            Destroy(gameObject);
-
-
-    }
-
-    // Update is called once per frame
     void Update()
     {
         
