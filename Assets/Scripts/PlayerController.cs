@@ -3,30 +3,95 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private Transform destinationPoint;
+    private Vector3 destinationPoint;
+    [SerializeField] GameObject point;
+
     public NavMeshAgent agent;
     public bool isChoosenOne = false;
+    [SerializeField] LineRenderer lineRenderer;
 
-    // Start is called before the first frame update
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        destinationPoint = transform.position;
 
+        InitLineRenderer();
+
+        point = Instantiate(point);
+        point.SetActive(false);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (isChoosenOne)
-            if (Input.GetMouseButtonDown(1))
-            {
-                RaycastHit hit;
-                if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 100))
-                    agent.destination = hit.point;
-            }
-        //agent.destination = destinationPoint.position;
+        if (isChoosenOne && Input.GetMouseButtonDown(1))
+        {
+            SetDestination();
+            BattleUI.singleton.SetSteps(CalculatePathLength(destinationPoint));
+        }
+    }
+
+    void InitLineRenderer()
+    {
+        lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.startColor = Color.yellow;
+        lineRenderer.endColor = new Color(255, 255, 0, 0);
+    }
+
+    void SetDestination()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 500))
+            destinationPoint = hit.point;
+
+        Vector3[] path = GetPath(destinationPoint);
+
+        // TODO
+        BattleUI.singleton.goButton.onClick.RemoveListener(MoveToDestination);
+
+        lineRenderer.positionCount = path.Length;
+        lineRenderer.SetPositions(path);
+
+        point.SetActive(true);
+        point.transform.position = destinationPoint;
+        BattleUI.singleton.goButton.onClick.AddListener(MoveToDestination);
+    }
+
+    void MoveToDestination()
+    {
+        agent.destination = destinationPoint;
+        BattleUI.singleton.goButton.onClick.RemoveListener(MoveToDestination);
+    }
+
+    float CalculatePathLength(Vector3 targetPosition)
+    {
+        Vector3[] path = GetPath(targetPosition);
+
+        float pathLength = 0;
+
+        for (int i = 0; i < path.Length - 1; i++)
+            pathLength += Vector3.Distance(path[i], path[i + 1]);
+
+        return pathLength;
+    }
+
+    Vector3[] GetPath(Vector3 targetPosition)
+    {
+        NavMeshPath path = new NavMeshPath();
+        if (agent.enabled)
+            agent.CalculatePath(targetPosition, path);
+
+        int pathPoints = path.corners.Length + 2;
+
+        Vector3[] resultPath = new Vector3[pathPoints];
+        resultPath[0] = transform.position;
+        path.corners.CopyTo(resultPath, 1);
+        resultPath[pathPoints - 1] = targetPosition;
+
+        return resultPath;
     }
 }
