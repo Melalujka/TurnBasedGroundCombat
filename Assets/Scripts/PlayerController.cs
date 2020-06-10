@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour
         battleUI.turnButton.onClick.AddListener(RenewPoints);
 
         battleUI.shotButton.onClick.AddListener(Shot);
+        battleUI.goButton.onClick.AddListener(MoveToDestination);
     }
 
     void Update()
@@ -55,6 +56,7 @@ public class PlayerController : MonoBehaviour
 
         CountMeters();
         MovementControl();
+        RenderLine();
     }
 
     void InitLineRenderer()
@@ -71,17 +73,21 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 300))
             destinationPoint = hit.point;
 
-        Vector3[] path = GetPath(destinationPoint);
+        //RenderLine();
 
-        // TODO: maybe no need to remove
-        battleUI.goButton.onClick.RemoveListener(MoveToDestination);
-
-        lineRenderer.positionCount = path.Length;
-        lineRenderer.SetPositions(path);
+        // TODO: maybe no need to remove the listener
+        //battleUI.goButton.onClick.RemoveListener(MoveToDestination);
 
         point.SetActive(true);
         point.transform.position = destinationPoint;
-        battleUI.goButton.onClick.AddListener(MoveToDestination);
+        //battleUI.goButton.onClick.AddListener(MoveToDestination);
+    }
+
+    private void RenderLine()
+    {
+        Vector3[] path = GetPath(destinationPoint);
+        lineRenderer.positionCount = path.Length;
+        lineRenderer.SetPositions(path);
     }
 
     void MoveToDestination()
@@ -90,7 +96,7 @@ public class PlayerController : MonoBehaviour
         {
             agent.isStopped = false;
             agent.destination = destinationPoint;
-            battleUI.goButton.onClick.RemoveListener(MoveToDestination);
+          //  battleUI.goButton.onClick.RemoveListener(MoveToDestination);
             battleUI.stopButton.onClick.AddListener(Stop);
         }
     }
@@ -101,12 +107,13 @@ public class PlayerController : MonoBehaviour
         {
             agent.isStopped = true;
             battleUI.stopButton.onClick.RemoveListener(Stop);
-            battleUI.goButton.onClick.AddListener(MoveToDestination);
+          //  battleUI.goButton.onClick.AddListener(MoveToDestination);
         }
     }
 
     void Shot()
     {
+        // TODO: implement shot functionality
         if (isChoosenOne && movementPoints > 25)
             movementPoints -= 25;
     }
@@ -158,7 +165,7 @@ public class PlayerController : MonoBehaviour
         Vector3 currentPosition = transform.position;    // just make a copy for clarity
         float distance = Vector3.Distance(currentPosition, lastPosition);    // how far?
         odometerDistance += distance;        // accumulate
-        movementPoints -= distance;
+        movementPoints -= distance;         // calculate
         lastPosition = currentPosition;    // save your last position for next frame
 
         battleUI.SetSteps(movementPoints);
