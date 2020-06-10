@@ -5,17 +5,20 @@ using UnityEngine.UI;
 
 public class BattleUI : MonoBehaviour
 {
-    public static BattleUI singleton;
     [SerializeField] Text stepsText;
+    [SerializeField] Text rangeText;
     public Button goButton;
+    public Button stopButton;
+    public Button shotButton;
+    public Button turnButton;
 
-    void Update()
+    public void SetSteps(float steps)
     {
-        
+        stepsText.text = "Steps: " + (int)steps;
     }
 
-    public void SetSteps(float range)
+    public void SetRange(float range)
     {
-        stepsText.text = "Range: " + (int)range;
+        rangeText.text = "Range: " + (int)range;
     }
 }
