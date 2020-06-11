@@ -35,8 +35,6 @@ public class PlayerController : MonoBehaviour
         lastPosition = transform.position;
 
         RenewPoints();
-        // TODO: check CountMeters() does it stole 1 point on the start?
-        movementPoints += 1;
 
         // TODO: remove later
         battleUI.turnButton.onClick.AddListener(RenewPoints);
@@ -48,15 +46,19 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         if (isChoosenOne)
-        {
             battleUI.SetRange(CalculatePathLength(destinationPoint));
-            if (Input.GetMouseButtonDown(1))
-                SetDestination();
-        }
+            
 
         CountMeters();
         MovementControl();
         RenderLine();
+    }
+
+    private void OnMouseDown()
+    {
+            if (Input.GetMouseButtonDown(0))
+                SetDestination();
+        
     }
 
     void InitLineRenderer()
