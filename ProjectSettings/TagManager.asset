@@ -9,6 +9,10 @@ TagManager:
   - Mage
   - Warrior
   - Druid
+  - Go
+  - Stop
+  - Shot
+  - Turn
   layers:
   - Default
   - TransparentFX
