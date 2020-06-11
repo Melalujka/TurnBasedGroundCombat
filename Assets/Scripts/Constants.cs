@@ -48,6 +48,8 @@ public class Constants
 
     }
 
+    public static string BattleManager = "BattleManager";
+
     public class Archer : ICharConsts
     {
         public int SightRange  // read-write instance property

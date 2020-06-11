@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    GameObject[] characters = new GameObject[8];
+    [SerializeField] BattleManager manager;
     [SerializeField] GameObject[] characterPrefabs;
     [SerializeField] GameObject[] topSpawns;
     [SerializeField] GameObject[] bottomSpawns;
@@ -23,12 +23,12 @@ public class SpawnManager : MonoBehaviour
                                         topSpawns[i].transform.position,
                                         topSpawns[i].transform.rotation);
             prefabTop.GetComponent<PlayerController>().battleUI = battleUI;
-            characters[i] = prefabTop;
+            manager.characters[i] = prefabTop;
             var prefabBottom = Instantiate(pref,
                                            bottomSpawns[i].transform.position,
                                            bottomSpawns[i].transform.rotation);
             prefabBottom.GetComponent<PlayerController>().battleUI = battleUI;
-            characters[i + 4] = prefabBottom;
+            manager.characters[i + 4] = prefabBottom;
         }
     }
 }
