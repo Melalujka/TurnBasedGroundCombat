@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,11 +15,11 @@ public class BattleUI : MonoBehaviour
 
     public void SetSteps(float steps)
     {
-        stepsText.text = "Steps: " + (int)steps;
+        stepsText.text = "Steps: " + (int) Math.Round(steps);
     }
 
     public void SetRange(float range)
     {
-        rangeText.text = "Range: " + (int)range;
+        rangeText.text = "Range: " + (int)Math.Round(range);
     }
 }
