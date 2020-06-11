@@ -4,24 +4,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] GameObject point;
     [SerializeField] float movementPoints;
 
+    private BattleManager manager;
     private Vector3 lastPosition;
     private float odometerDistance;
     private ICharConsts consts;
     private Vector3 destinationPoint;
     public NavMeshAgent agent;
-    public bool isChoosenOne = false;
+    private bool isChoosenOne = false;
+    private bool shouldIgnoreClick = false;
     [SerializeField] LineRenderer lineRenderer;
 
     public BattleUI battleUI;
 
     void Start()
     {
+        manager = GameObject.Find(Constants.BattleManager).GetComponent<BattleManager>();
         consts = Constants.GetChar(gameObject.tag);
 
         agent = GetComponent<NavMeshAgent>();
@@ -43,22 +47,35 @@ public class PlayerController : MonoBehaviour
         battleUI.goButton.onClick.AddListener(MoveToDestination);
     }
 
-    void Update()
+    private void FixedUpdate()
     {
-        if (isChoosenOne)
-            battleUI.SetRange(CalculatePathLength(destinationPoint));
-            
-
-        CountMeters();
         MovementControl();
         RenderLine();
     }
 
     private void OnMouseDown()
     {
-            if (Input.GetMouseButtonDown(0))
+        if (!isChoosenOne && !EventSystem.current.IsPointerOverGameObject())
+        {
+            manager.DeselectAllCharacters();
+            var cam = Camera.main.GetComponentInParent<CameraController>();
+            cam.player = gameObject;
+            SetChoosenOne();
+            shouldIgnoreClick = true;
+        }
+    }
+
+    void Update()
+    {
+        if (isChoosenOne)
+        {
+            battleUI.SetRange(CalculatePathLength(destinationPoint));
+
+            if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
                 SetDestination();
-        
+
+        }
+        CountMeters();
     }
 
     void InitLineRenderer()
@@ -71,18 +88,24 @@ public class PlayerController : MonoBehaviour
 
     void SetDestination()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 300))
-            destinationPoint = hit.point;
+        if (!shouldIgnoreClick) {
+            RaycastHit hit;
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 300))
+                destinationPoint = hit.point;
 
-        //RenderLine();
+            //RenderLine();
 
-        // TODO: maybe no need to remove the listener
-        //battleUI.goButton.onClick.RemoveListener(MoveToDestination);
+            // TODO: maybe no need to remove the listener
+            //battleUI.goButton.onClick.RemoveListener(MoveToDestination);
 
-        point.SetActive(true);
-        point.transform.position = destinationPoint;
-        //battleUI.goButton.onClick.AddListener(MoveToDestination);
+            point.SetActive(true);
+            point.transform.position = destinationPoint;
+            //battleUI.goButton.onClick.AddListener(MoveToDestination);
+        }
+        else
+        {
+            shouldIgnoreClick = false;
+        }
     }
 
     private void RenderLine()
@@ -171,5 +194,10 @@ public class PlayerController : MonoBehaviour
         lastPosition = currentPosition;    // save your last position for next frame
 
         battleUI.SetSteps(movementPoints);
+    }
+
+    public void SetChoosenOne(bool choosen = true)
+    {
+        isChoosenOne = choosen;
     }
 }

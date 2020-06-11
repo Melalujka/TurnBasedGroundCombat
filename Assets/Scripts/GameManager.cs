@@ -9,27 +9,27 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            GameObject newPlayer = Clicked();
-            if (newPlayer != null)
-            {
-                GameObject player = cam.GetComponent<CameraController>().player;
-                if (Clicked().GetComponent<PlayerController>() != null && !(newPlayer == player))
-                //if (newPlayer.CompareTag(Tags.Character.ToString()) && !(newPlayer == player))
-                {
-                    if (player != null)
-                    {
-                        PlayerController playerScript = player.GetComponent<PlayerController>();
-                        playerScript.isChoosenOne = false;
-                        playerScript.agent.destination = player.transform.position;
-                    }
+        //if (Input.GetMouseButtonDown(0))
+        //{
+        //    GameObject newPlayer = Clicked();
+        //    if (newPlayer != null)
+        //    {
+        //        GameObject player = cam.GetComponent<CameraController>().player;
+        //        if (Clicked().GetComponent<PlayerController>() != null && !(newPlayer == player))
+        //        //if (newPlayer.CompareTag(Tags.Character.ToString()) && !(newPlayer == player))
+        //        {
+        //            if (player != null)
+        //            {
+        //                PlayerController playerScript = player.GetComponent<PlayerController>();
+        //                playerScript.isChoosenOne = false;
+        //                //playerScript.agent.destination = player.transform.position;
+        //            }
 
-                    cam.GetComponent<CameraController>().player = newPlayer;
-                    newPlayer.GetComponent<PlayerController>().isChoosenOne = true;
-                }
-            }
-        }
+        //            cam.GetComponent<CameraController>().player = newPlayer;
+        //            newPlayer.GetComponent<PlayerController>().isChoosenOne = true;
+        //        }
+        //    }
+        //}
     }
 
     GameObject Clicked()
