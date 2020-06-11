@@ -7,9 +7,13 @@ using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
-    private Vector3 destinationPoint;
     [SerializeField] GameObject point;
+    [SerializeField] float movementPoints;
 
+    private Vector3 lastPosition;
+    private float odometerDistance;
+    private ICharConsts consts;
+    private Vector3 destinationPoint;
     public NavMeshAgent agent;
     public bool isChoosenOne = false;
     [SerializeField] LineRenderer lineRenderer;
@@ -18,6 +22,8 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        consts = Constants.GetChar(gameObject.tag);
+
         agent = GetComponent<NavMeshAgent>();
         destinationPoint = transform.position;
 
@@ -25,15 +31,32 @@ public class PlayerController : MonoBehaviour
 
         point = Instantiate(point);
         point.SetActive(false);
+
+        lastPosition = transform.position;
+
+        RenewPoints();
+        // TODO: check CountMeters() does it stole 1 point on the start?
+        movementPoints += 1;
+
+        // TODO: remove later
+        battleUI.turnButton.onClick.AddListener(RenewPoints);
+
+        battleUI.shotButton.onClick.AddListener(Shot);
+        battleUI.goButton.onClick.AddListener(MoveToDestination);
     }
 
     void Update()
     {
-        if (isChoosenOne && Input.GetMouseButtonDown(1))
+        if (isChoosenOne)
         {
-            SetDestination();
-            battleUI.SetSteps(CalculatePathLength(destinationPoint));
+            battleUI.SetRange(CalculatePathLength(destinationPoint));
+            if (Input.GetMouseButtonDown(1))
+                SetDestination();
         }
+
+        CountMeters();
+        MovementControl();
+        RenderLine();
     }
 
     void InitLineRenderer()
@@ -47,26 +70,63 @@ public class PlayerController : MonoBehaviour
     void SetDestination()
     {
         RaycastHit hit;
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 500))
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 300))
             destinationPoint = hit.point;
 
-        Vector3[] path = GetPath(destinationPoint);
+        //RenderLine();
 
-        // TODO
-        battleUI.goButton.onClick.RemoveListener(MoveToDestination);
-
-        lineRenderer.positionCount = path.Length;
-        lineRenderer.SetPositions(path);
+        // TODO: maybe no need to remove the listener
+        //battleUI.goButton.onClick.RemoveListener(MoveToDestination);
 
         point.SetActive(true);
         point.transform.position = destinationPoint;
-        battleUI.goButton.onClick.AddListener(MoveToDestination);
+        //battleUI.goButton.onClick.AddListener(MoveToDestination);
+    }
+
+    private void RenderLine()
+    {
+        Vector3[] path = GetPath(destinationPoint);
+        lineRenderer.positionCount = path.Length;
+        lineRenderer.SetPositions(path);
     }
 
     void MoveToDestination()
     {
-        agent.destination = destinationPoint;
-        battleUI.goButton.onClick.RemoveListener(MoveToDestination);
+        if (isChoosenOne)
+        {
+            agent.isStopped = false;
+            agent.destination = destinationPoint;
+          //  battleUI.goButton.onClick.RemoveListener(MoveToDestination);
+            battleUI.stopButton.onClick.AddListener(Stop);
+        }
+    }
+
+    void Stop()
+    {
+        if (isChoosenOne)
+        {
+            agent.isStopped = true;
+            battleUI.stopButton.onClick.RemoveListener(Stop);
+          //  battleUI.goButton.onClick.AddListener(MoveToDestination);
+        }
+    }
+
+    void Shot()
+    {
+        // TODO: implement shot functionality
+        if (isChoosenOne && movementPoints > 25)
+            movementPoints -= 25;
+    }
+
+    void MovementControl()
+    {
+        if (isChoosenOne && !agent.isStopped && movementPoints <= 0 )
+            Stop();
+    }
+
+    public void RenewPoints()
+    {
+        movementPoints = consts.MovementPoints;
     }
 
     float CalculatePathLength(Vector3 targetPosition)
@@ -95,5 +155,19 @@ public class PlayerController : MonoBehaviour
         resultPath[pathPoints - 1] = targetPosition;
 
         return resultPath;
+    }
+
+    void CountMeters()
+    {
+        if (!isChoosenOne)
+            return;
+
+        Vector3 currentPosition = transform.position;    // just make a copy for clarity
+        float distance = Vector3.Distance(currentPosition, lastPosition);    // how far?
+        odometerDistance += distance;        // accumulate
+        movementPoints -= distance;         // calculate
+        lastPosition = currentPosition;    // save your last position for next frame
+
+        battleUI.SetSteps(movementPoints);
     }
 }

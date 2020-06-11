@@ -14,7 +14,6 @@ public class GameManager : MonoBehaviour
             GameObject newPlayer = Clicked();
             if (newPlayer != null)
             {
-                Debug.Log("newPlayer.tag" + newPlayer.tag);
                 GameObject player = cam.GetComponent<CameraController>().player;
                 if (Clicked().GetComponent<PlayerController>() != null && !(newPlayer == player))
                 //if (newPlayer.CompareTag(Tags.Character.ToString()) && !(newPlayer == player))

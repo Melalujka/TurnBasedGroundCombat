@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - Character
+  - Archer
+  - Mage
+  - Warrior
+  - Druid
   layers:
   - Default
   - TransparentFX

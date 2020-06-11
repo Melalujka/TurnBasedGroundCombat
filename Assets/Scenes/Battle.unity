@@ -5248,8 +5248,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a539bb50272a3422b85e02e16fb2c8a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterPrefab: {fileID: 8918649274697891047, guid: ca95c66b2957c4e57931acaf0680ff6e,
-    type: 3}
+  characterPrefabs:
+  - {fileID: 4460382121827035178, guid: 6bbe43c91444e43a4a8a98387b2bd853, type: 3}
+  - {fileID: 4605700316977139361, guid: 006c5a46aad1c48f29ec75bf4e27e40b, type: 3}
+  - {fileID: 877924773440349008, guid: 645465374ce0a4f57b2ce01827e5f9e1, type: 3}
+  - {fileID: 5077343877267438289, guid: 68a86a47c8c894465922ba8a2de2bebb, type: 3}
   topSpawns:
   - {fileID: 187392484}
   - {fileID: 1614981879}
