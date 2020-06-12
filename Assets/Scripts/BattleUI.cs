@@ -15,11 +15,17 @@ public class BattleUI : MonoBehaviour
 
     public void SetSteps(float steps)
     {
-        stepsText.text = "Steps: " + (int) Math.Round(steps);
+        stepsText.text = "Steps: " + (int)Math.Round(steps);
     }
 
     public void SetRange(float range)
     {
         rangeText.text = "Range: " + (int)Math.Round(range);
+    }
+
+    public void ShotOrMove(bool shot)
+    {
+        shotButton.GetComponentInChildren<Text>().text = shot ? "Move" : "Atack";
+        goButton.GetComponentInChildren<Text>().text = shot ? "Shot" : "Go";
     }
 }

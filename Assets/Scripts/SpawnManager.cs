@@ -22,12 +22,12 @@ public class SpawnManager : MonoBehaviour
             var prefabTop = Instantiate(pref,
                                         topSpawns[i].transform.position,
                                         topSpawns[i].transform.rotation);
-            prefabTop.GetComponent<PlayerController>().battleUI = battleUI;
+            prefabTop.GetComponent<CharacterController>().battleUI = battleUI;
             manager.characters[i] = prefabTop;
             var prefabBottom = Instantiate(pref,
                                            bottomSpawns[i].transform.position,
                                            bottomSpawns[i].transform.rotation);
-            prefabBottom.GetComponent<PlayerController>().battleUI = battleUI;
+            prefabBottom.GetComponent<CharacterController>().battleUI = battleUI;
             manager.characters[i + 4] = prefabBottom;
         }
     }
