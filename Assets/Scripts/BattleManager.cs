@@ -2,32 +2,48 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class BattleManager : MonoBehaviour
 {
     public GameObject[] characters = new GameObject[8];
 
-    public PlayerController[] TopCharacters => GetCharactersRange(true);
+    public CharacterController[] TopCharacters => GetCharactersRange(true);
 
-    public PlayerController[] BottomCharacters => GetCharactersRange(false);
+    public CharacterController[] BottomCharacters => GetCharactersRange(false);
 
-    public PlayerController[] ActiveCharacters => GetCharactersRange(isTopTurn);
+    public CharacterController[] ActiveCharacters => GetCharactersRange(isTopTurn);
 
     public bool isTopTurn = true;
 
-    PlayerController[] GetCharacters()
+    private bool shotState = false;
+
+    [SerializeField] BattleUI battleUI;
+
+    void Start()
     {
-        return characters.Select(person => person.GetComponent<PlayerController>()).ToArray();
+        battleUI.shotButton.onClick.AddListener(ChangeShotState);
     }
 
-    PlayerController[] GetCharactersRange(bool isFirst)
+    void ChangeShotState()
+    {
+        shotState = !shotState;
+        battleUI.ShotOrMove(shotState);
+    }
+
+    CharacterController[] GetCharacters()
+    {
+        return characters.Select(person => person.GetComponent<CharacterController>()).ToArray();
+    }
+
+    CharacterController[] GetCharactersRange(bool isFirst)
     {
         return GetCharacters().Skip(isFirst ? 0 : 4).Take(4).ToArray();
     }
 
     public void DeselectAllCharacters()
     {
-        foreach (PlayerController character in ActiveCharacters)
+        foreach (CharacterController character in ActiveCharacters)
         {
             character.SetChoosenOne(false);
         }

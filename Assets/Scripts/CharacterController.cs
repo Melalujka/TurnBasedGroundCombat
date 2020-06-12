@@ -6,7 +6,7 @@ using UnityEngine.AI;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class PlayerController : MonoBehaviour
+public class CharacterController : MonoBehaviour
 {
     [SerializeField] GameObject point;
     [SerializeField] float movementPoints;
@@ -110,9 +110,18 @@ public class PlayerController : MonoBehaviour
 
     private void RenderLine()
     {
-        Vector3[] path = GetPath(destinationPoint);
-        lineRenderer.positionCount = path.Length;
-        lineRenderer.SetPositions(path);
+        if ((destinationPoint - transform.position).magnitude > 1)
+        {
+            point.SetActive(true);
+            Vector3[] path = GetPath(destinationPoint);
+            lineRenderer.positionCount = path.Length;
+            lineRenderer.SetPositions(path);
+        }
+        else
+        {
+            point.SetActive(false);
+            lineRenderer.positionCount = 0;
+        }
     }
 
     void MoveToDestination()
@@ -198,6 +207,6 @@ public class PlayerController : MonoBehaviour
 
     public void SetChoosenOne(bool choosen = true)
     {
-        isChoosenOne = choosen;
+         isChoosenOne = choosen;
     }
 }
