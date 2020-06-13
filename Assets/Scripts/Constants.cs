@@ -17,6 +17,8 @@ public interface ICharConsts
     int Health { get; set; }
     int Power { get; set; }
     int MovementPoints { get; set; }
+    int AttackRange { get; set; }
+    int CastRange { get; set; }
 }
 
 public enum Chars
@@ -60,6 +62,10 @@ public class Constants
         { get; set; } = 100;
         public int MovementPoints  // read-write instance property
         { get; set; } = 55;
+        public int AttackRange  // read-write instance property
+        { get; set; } = 1;
+        public int CastRange  // read-write instance property
+        { get; set; } = 120;
     }
 
     public class Warrior : ICharConsts
@@ -72,6 +78,10 @@ public class Constants
         { get; set; } = 120;
         public int MovementPoints  // read-write instance property
         { get; set; } = 50;
+        public int AttackRange  // read-write instance property
+        { get; set; } = 1;
+        public int CastRange  // read-write instance property
+        { get; set; } = 10;
     }
 
     public class Druid : ICharConsts
@@ -84,6 +94,10 @@ public class Constants
         { get; set; } = 80;
         public int MovementPoints  // read-write instance property
         { get; set; } = 40;
+        public int AttackRange  // read-write instance property
+        { get; set; } = 1;
+        public int CastRange  // read-write instance property
+        { get; set; } = 50;
     }
 
     public class Mage : ICharConsts
@@ -96,5 +110,9 @@ public class Constants
         { get; set; } = 120;
         public int MovementPoints  // read-write instance property
         { get; set; } = 40;
+        public int AttackRange  // read-write instance property
+        { get; set; } = 1;
+        public int CastRange  // read-write instance property
+        { get; set; } = 50;
     }
 }

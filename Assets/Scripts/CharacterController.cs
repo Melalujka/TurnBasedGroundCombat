@@ -17,9 +17,14 @@ public class CharacterController : MonoBehaviour
     private ICharConsts consts;
     private Vector3 destinationPoint;
     public NavMeshAgent agent;
-    private bool isChoosenOne = false;
+    public bool isChoosenOne = false;
     private bool shouldIgnoreClick = false;
     [SerializeField] LineRenderer lineRenderer;
+    public float SightRange => consts.SightRange;
+    public float AttackRange => consts.AttackRange;
+    public float CastRange => consts.CastRange;
+    //private GameObject[] visibleEnemies;
+    //public void SetVisibleEnemy(GameObject[] enemies) { visibleEnemies = enemies; }
 
     public BattleUI battleUI;
 
@@ -166,10 +171,7 @@ public class CharacterController : MonoBehaviour
             Stop();
     }
 
-    public void RenewPoints()
-    {
-        movementPoints = consts.MovementPoints;
-    }
+    public void RenewPoints() { movementPoints = consts.MovementPoints; }
 
     float CalculatePathLength(Vector3 targetPosition)
     {
@@ -221,8 +223,5 @@ public class CharacterController : MonoBehaviour
         battleUI.SetSteps(movementPoints);
     }
 
-    public void SetChoosenOne(bool choosen = true)
-    {
-         isChoosenOne = choosen;
-    }
+    public void SetChoosenOne(bool choosen = true) { isChoosenOne = choosen; }
 }

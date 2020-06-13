@@ -12,6 +12,7 @@ public class BattleUI : MonoBehaviour
     public Button stopButton;
     public Button shotButton;
     public Button turnButton;
+    public Button[] enemyButtons;
 
     public void SetSteps(float steps)
     {
@@ -23,9 +24,47 @@ public class BattleUI : MonoBehaviour
         rangeText.text = "Range: " + (int)Math.Round(range);
     }
 
-    public void ShotOrMove(bool shot)
+    public void ShowEnemyButtons(int[] enemies)
     {
-        shotButton.GetComponentInChildren<Text>().text = shot ? "Move" : "Atack";
-        goButton.GetComponentInChildren<Text>().text = shot ? "Shot" : "Go";
+        HideEnemyButtons();
+        for (int i = 0; i < enemies.Length - 1; i++)
+        {
+            enemyButtons[enemies[i]].gameObject.SetActive(true);
+        }
     }
+
+    public void HideEnemyButtons()
+    {
+        foreach (Button button in enemyButtons)
+            button.gameObject.SetActive(false);
+    }
+
+    private void Start()
+    {
+        for (int i = 0; i < enemyButtons.Length - 1; i++)
+            enemyButtons[i].onClick.AddListener(delegate { ButtonSet(i); });
+    }
+
+    private void ButtonSet(int index)
+    {
+        Debug.Log("index: " + index);
+
+        foreach (Button button in enemyButtons)
+        {
+            var colors1 = button.colors;
+            colors1.normalColor = Color.white;
+            button.colors = colors1;
+        }
+
+        var colors = enemyButtons[index].colors;
+        colors.normalColor = Color.red;
+        enemyButtons[index].colors = colors;
+    }
+
+
+    //public void ShotOrMove(bool shot)
+    //{
+    //    shotButton.GetComponentInChildren<Text>().text = shot ? "Move" : "Atack";
+    //    goButton.GetComponentInChildren<Text>().text = shot ? "Shot" : "Go";
+    //}
 }
