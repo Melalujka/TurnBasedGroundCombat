@@ -108,6 +108,14 @@ public class CharacterController : MonoBehaviour
         }
     }
 
+    Ray CastRay(Vector3 target)
+    {
+        Ray ray = new Ray();
+        ray.origin = target;
+        ray.direction = Vector3.up;
+        return ray;
+    }
+
     private void RenderLine()
     {
         if ((destinationPoint - transform.position).magnitude > 1)
@@ -181,14 +189,22 @@ public class CharacterController : MonoBehaviour
         if (agent.enabled)
             agent.CalculatePath(targetPosition, path);
 
-        int pathPoints = path.corners.Length + 2;
+        //int pathPoints = path.corners.Length + 2;
 
-        Vector3[] resultPath = new Vector3[pathPoints];
-        resultPath[0] = transform.position;
-        path.corners.CopyTo(resultPath, 1);
-        resultPath[pathPoints - 1] = targetPosition;
+        //Vector3[] resultPath = new Vector3[pathPoints];
+        //resultPath[0] = transform.position;
+        //path.corners.CopyTo(resultPath, 1);
+        //resultPath[pathPoints - 1] = targetPosition;
+        //List<Vector3> pathPoints;
+        //for (int i = 0; i < path.corners.Length - 1; i++)
+        //{
+        //    if (path.corners[i].z != path.corners[i+1].z)
+        //    {
 
-        return resultPath;
+        //    }
+        //}
+
+        return path.corners;
     }
 
     void CountMeters()
