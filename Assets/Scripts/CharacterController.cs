@@ -20,9 +20,21 @@ public class CharacterController : MonoBehaviour
     public bool isChoosenOne = false;
     private bool shouldIgnoreClick = false;
     [SerializeField] LineRenderer lineRenderer;
+
+    public bool isAlive = true;
+
+    private float castModifier = 1;
+    private float sightModifier = 1;
+    private float attackModifier = 1;
+    private float speedModifier = 1;
+    private float healthModifier = 1;
+
+    private float currentHealth;
     public float SightRange => consts.SightRange;
     public float AttackRange => consts.AttackRange;
     public float CastRange => consts.CastRange;
+    public float CastPower => consts.CastPower * sightModifier;
+    public float AttackPower => consts.AttackPower * attackModifier;
     //private GameObject[] visibleEnemies;
     //public void SetVisibleEnemy(GameObject[] enemies) { visibleEnemies = enemies; }
 
@@ -32,6 +44,7 @@ public class CharacterController : MonoBehaviour
     {
         manager = GameObject.Find(Constants.BattleManager).GetComponent<BattleManager>();
         consts = Constants.GetChar(gameObject.tag);
+        currentHealth = consts.Health;
 
         agent = GetComponent<NavMeshAgent>();
         destinationPoint = transform.position;
@@ -54,8 +67,29 @@ public class CharacterController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        CheckIfAlive();
         MovementControl();
         RenderLine();
+    }
+
+    private void CheckIfAlive()
+    {
+        if (currentHealth <= 0 && isAlive)
+        {
+            Die();
+            manager.CharacterOutOfHealth(this);
+        }
+    }
+
+    void Die()
+    {
+        isAlive = false;
+    }
+
+    public void Resurect(float healthPoints)
+    {
+        isAlive = true;
+        currentHealth = healthPoints;
     }
 
     private void OnMouseDown()
@@ -75,6 +109,7 @@ public class CharacterController : MonoBehaviour
         if (isChoosenOne)
         {
             battleUI.SetRange(CalculatePathLength(destinationPoint));
+            battleUI.SetHealth(currentHealth);
 
             if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
                 SetDestination();
@@ -93,7 +128,8 @@ public class CharacterController : MonoBehaviour
 
     void SetDestination()
     {
-        if (!shouldIgnoreClick) {
+        if (!shouldIgnoreClick && isAlive)
+        {
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 300))
                 destinationPoint = hit.point;
@@ -139,7 +175,7 @@ public class CharacterController : MonoBehaviour
 
     void MoveToDestination()
     {
-        if (isChoosenOne)
+        if (isChoosenOne && isAlive)
         {
             agent.isStopped = false;
             agent.destination = destinationPoint;
@@ -160,9 +196,12 @@ public class CharacterController : MonoBehaviour
 
     void Shot()
     {
-        // TODO: implement shot functionality
-        if (isChoosenOne && movementPoints > 25)
+        if (movementPoints > 25 && isAlive)
+        { 
             movementPoints -= 25;
+            manager.Shot();
+        }
+
     }
 
     void MovementControl()
@@ -224,4 +263,6 @@ public class CharacterController : MonoBehaviour
     }
 
     public void SetChoosenOne(bool choosen = true) { isChoosenOne = choosen; }
+
+    public void GotDamage(float damage) { currentHealth -= damage; }
 }
