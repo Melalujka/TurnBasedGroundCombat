@@ -13,6 +13,8 @@ public class BattleUI : MonoBehaviour
     public Button stopButton;
     public Button shotButton;
     public Button turnButton;
+    public Button nextCharButton;
+    public Button endTurnButton;
     public Button[] enemyButtons;
 
     public void SetSteps(float steps)
@@ -56,19 +58,27 @@ public class BattleUI : MonoBehaviour
 
     private void ButtonSet(int index)
     {
-        foreach (Button button in enemyButtons)
-        {
-            var colors1 = button.colors;
-            colors1.normalColor = Color.white;
-            button.colors = colors1;
-        }
+        CleanEnemyButtons();
 
         var colors = enemyButtons[index].colors;
         colors.normalColor = Color.red;
         enemyButtons[index].colors = colors;
     }
 
+    private void CleanEnemyButtons()
+    {
+        foreach (Button button in enemyButtons)
+        {
+            var colors1 = button.colors;
+            colors1.normalColor = Color.white;
+            button.colors = colors1;
+        }
+    }
 
+    public void SetDefault()
+    {
+        CleanEnemyButtons();
+    }
     //public void ShotOrMove(bool shot)
     //{
     //    shotButton.GetComponentInChildren<Text>().text = shot ? "Move" : "Atack";

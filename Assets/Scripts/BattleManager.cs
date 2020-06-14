@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class BattleManager : MonoBehaviour
 {
@@ -27,12 +28,66 @@ public class BattleManager : MonoBehaviour
     void Start()
     {
         //battleUI.shotButton.onClick.AddListener(ChangeShotState);
+
+    }
+
+    private void EndTurnAction()
+    {
+        foreach (CharacterController character in InactiveCharacters)
+            character.RenewPoints();
+        isTopTurn = !isTopTurn;
+        if (ActiveCharacters.Count > 0)
+            ActiveCharacters[0].SetPlayerAsChoosenAndUpdateCamera();
+    }
+
+    private void NextCharAction()
+    {
+        var currentActiveChar = GetActiveChar();
+        for (int i = 0; i < ActiveCharacters.Count; ++i)
+        {
+            Debug.Log("(int i = 0; i < ActiveCharacters.Count; ++i): " + i);
+            if (ActiveCharacters[i] == currentActiveChar)
+            {
+                Debug.Log("ActiveCharacters[i] == currentActiveChar " + i);
+                var nextIndex = (i == ActiveCharacters.Count - 1) ? 0 : i + 1;
+                ActiveCharacters[nextIndex].SetPlayerAsChoosenAndUpdateCamera();
+                return;
+            }
+        }
+        Debug.Log("ActiveCharacters[0].SetPlayerAsChoosenAndUpdateCamera();");
+        ActiveCharacters[0].SetPlayerAsChoosenAndUpdateCamera();
+    }
+
+    private void CheckWinConditions()
+    {
+        var aliveActive = ActiveCharacters.Where(character => character.isAlive);
+        var aliveInactive = InactiveCharacters.Where(character => character.isAlive);
+        if (aliveActive == null || aliveActive.Count() <= 0)
+        {
+            var text = isTopTurn ? "Bottom team won!" : "Top team won!";
+            Debug.Log(text);
+            GameEnd();
+        }
+        else if (aliveInactive == null || aliveInactive.Count() <= 0)
+        {
+            var text = isTopTurn ? "Top team won!" : "Bottom team won!";
+            Debug.Log(text);
+            GameEnd();
+        }
+    }
+
+    public void GameEnd()
+    {
+        Debug.Log("The End");
+        SceneManager.LoadScene(SceneTag.Menu.ToString());
     }
 
     public void Configure()
     {
         TopAliveCharacters = characters.Take(4).Select(person => person.GetComponent<CharacterController>()).ToList();
         BottomAliveCharacters = characters.Skip(4).Take(4).Select(person => person.GetComponent<CharacterController>()).ToList();
+        battleUI.endTurnButton.onClick.AddListener(EndTurnAction);
+        battleUI.nextCharButton.onClick.AddListener(NextCharAction);
     }
 
     //void ChangeShotState()
@@ -103,8 +158,8 @@ public class BattleManager : MonoBehaviour
 
     void Update()
     {
+        CheckWinConditions();
         SetCastAvailable();
-
     }
 
     void SetCastAvailable()
@@ -135,11 +190,11 @@ public class BattleManager : MonoBehaviour
         return ActiveCharacters.SingleOrDefault(x => x.isChoosenOne);
     }
 
-    public void Shot(CharacterController character = null, CharacterController to = null)
+    public bool Shot(CharacterController character = null, CharacterController to = null)
     {
         CharacterController activeChar = (character != null) ? character : GetActiveChar();
         if (activeChar == null)
-            return;
+            return false;
         
         var aimChar = to;
         if (aimChar == null)
@@ -158,17 +213,22 @@ public class BattleManager : MonoBehaviour
                 aimChar = InactiveCharacters[index];
             }
             else
-                return;
+                return false;
         }
         else
-            return;
-        Cast(character: activeChar, to: aimChar);
+            return false;
+        return Cast(character: activeChar, to: aimChar);
     }
 
-    private void Cast(CharacterController character, CharacterController to )
+    private bool Cast(CharacterController character, CharacterController to)
     {
         if (CheckClose(character.transform.position, to.transform.position, character.GetComponent<CharacterController>().CastRange))
+        {
             to.GotDamage(character.CastPower);
+            return true;
+        }
+        else
+            return false;
     }
 
     public void CharacterOutOfHealth(CharacterController character)

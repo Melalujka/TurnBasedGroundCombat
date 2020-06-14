@@ -97,12 +97,18 @@ public class CharacterController : MonoBehaviour
     {
         if (!isChoosenOne && !EventSystem.current.IsPointerOverGameObject())
         {
-            manager.DeselectAllCharacters();
-            var cam = Camera.main.GetComponentInParent<CameraController>();
-            cam.player = gameObject;
-            SetChoosenOne();
+            SetPlayerAsChoosenAndUpdateCamera();
             shouldIgnoreClick = true;
         }
+    }
+
+    public void SetPlayerAsChoosenAndUpdateCamera()
+    {
+        manager.DeselectAllCharacters();
+        battleUI.SetDefault();
+        var cam = Camera.main.GetComponentInParent<CameraController>();
+        cam.player = gameObject;
+        SetChoosenOne();
     }
 
     void Update()
@@ -205,8 +211,12 @@ public class CharacterController : MonoBehaviour
     {
         if (movementPoints > 25 && isAlive)
         {
-            movementPoints -= 25;
-            manager.Shot();
+            var succes = manager.Shot();
+            if (succes)
+            {
+                movementPoints -= 25;
+                battleUI.SetDefault();
+            }
         }
 
     }
