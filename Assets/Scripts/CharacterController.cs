@@ -33,7 +33,7 @@ public class CharacterController : MonoBehaviour
     public float SightRange => consts.SightRange;
     public float AttackRange => consts.AttackRange;
     public float CastRange => consts.CastRange;
-    public float CastPower => consts.CastPower * sightModifier;
+    public float CastPower => consts.CastPower * castModifier;
     public float AttackPower => consts.AttackPower * attackModifier;
     //private GameObject[] visibleEnemies;
     //public void SetVisibleEnemy(GameObject[] enemies) { visibleEnemies = enemies; }
@@ -61,7 +61,7 @@ public class CharacterController : MonoBehaviour
         // TODO: remove later
         battleUI.turnButton.onClick.AddListener(RenewPoints);
 
-        battleUI.shotButton.onClick.AddListener(Shot);
+        battleUI.shotButton.onClick.AddListener(ShotButtonAction);
         battleUI.goButton.onClick.AddListener(MoveToDestination);
     }
 
@@ -90,6 +90,7 @@ public class CharacterController : MonoBehaviour
     {
         isAlive = true;
         currentHealth = healthPoints;
+        manager.CharacterAliveAgain(this);
     }
 
     private void OnMouseDown()
@@ -194,10 +195,16 @@ public class CharacterController : MonoBehaviour
         }
     }
 
+    void ShotButtonAction()
+    {
+        if (isChoosenOne)
+            Shot();
+    }
+
     void Shot()
     {
         if (movementPoints > 25 && isAlive)
-        { 
+        {
             movementPoints -= 25;
             manager.Shot();
         }
@@ -264,5 +271,10 @@ public class CharacterController : MonoBehaviour
 
     public void SetChoosenOne(bool choosen = true) { isChoosenOne = choosen; }
 
-    public void GotDamage(float damage) { currentHealth -= damage; }
+    public void GotDamage(float damage) {
+        Debug.Log("currentHealth: " + currentHealth);
+        Debug.Log("GotDamage: " + damage);
+        currentHealth -= damage;
+        Debug.Log("health left: " + currentHealth);
+    }
 }

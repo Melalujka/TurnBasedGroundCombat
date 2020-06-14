@@ -173,11 +173,17 @@ public class BattleManager : MonoBehaviour
 
     public void CharacterOutOfHealth(CharacterController character)
     {
-
-        //var id = character.GetInstanceID();
-
         TopAliveCharacters.Remove(character);
         BottomAliveCharacters.Remove(character);
+    }
 
+    public void CharacterAliveAgain(CharacterController character)
+    {
+        for (int i = 0; i < characters.Length; ++i)
+            if (characters[i] == character)
+                if (i < 4)
+                    TopAliveCharacters.Insert(i, character);
+                else
+                    BottomAliveCharacters.Insert(i - 4, character);
     }
 }
