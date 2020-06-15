@@ -47,6 +47,7 @@ public class CharacterController : MonoBehaviour
         currentHealth = consts.Health;
 
         agent = GetComponent<NavMeshAgent>();
+        agent.isStopped = true;
         destinationPoint = transform.position;
 
         InitLineRenderer();
@@ -156,11 +157,12 @@ public class CharacterController : MonoBehaviour
         }
     }
 
-    Ray CastRay(Vector3 target)
+    Ray RayCastDown(Vector3 target)
     {
         Ray ray = new Ray();
-        ray.origin = target;
-        ray.direction = Vector3.up;
+        ray.origin = target + Vector3.up * 2;
+        ray.direction = Vector3.down;
+        Debug.DrawRay(ray.origin, ray.direction * 5f, Color.red);
         return ray;
     }
 
@@ -193,12 +195,12 @@ public class CharacterController : MonoBehaviour
 
     void Stop()
     {
-        if (isChoosenOne)
-        {
+        //if (isChoosenOne)
+        //{
             agent.isStopped = true;
             battleUI.stopButton.onClick.RemoveListener(Stop);
           //  battleUI.goButton.onClick.AddListener(MoveToDestination);
-        }
+        //}
     }
 
     void ShotButtonAction()
@@ -223,7 +225,8 @@ public class CharacterController : MonoBehaviour
 
     void MovementControl()
     {
-        if (isChoosenOne && !agent.isStopped && movementPoints <= 0 )
+        //Debug.Log("First: " + (!agent.isStopped && movementPoints <= 0));
+        if ((!agent.isStopped && movementPoints <= 0 ) || (transform.position - destinationPoint).magnitude < 0.1f )
             Stop();
     }
 
@@ -261,22 +264,52 @@ public class CharacterController : MonoBehaviour
 
         //    }
         //}
+        var newPath = new List<Vector3>();
+        for (int i = 0; i < path.corners.Length - 1; i++)
+        {
+            newPath.Add(path.corners[i]);
+            
+            if (Math.Abs(path.corners[i].y - path.corners[i + 1].y) > -0.5)
+            {
+                var segments = (float)((path.corners[i] - path.corners[i + 1]).magnitude / 0.5);
+                var deltaY = (path.corners[i].y - path.corners[i + 1].y) / segments;
+                Vector3 delta = Vector3.zero;
+                Vector3 last = path.corners[i];
+                for (float j = 1; j < segments; j++)
+                {
+                    RaycastHit hit;
+                    if (Physics.Raycast(RayCastDown(Vector3.Lerp(path.corners[i], path.corners[i + 1], j / segments) + delta), out hit, 10))
+                    {
+                        newPath.Add(hit.point);
+                        delta += new Vector3(0, hit.point.y - last.y + deltaY, 0);
+                        last = hit.point;
+                    }
+                }
+                //RaycastHit hit;
+                //if (Physics.Raycast(RayCastDown((path.corners[i] + path.corners[i + 1]) / 2), out hit, 300))
+                //{
+                //    Debug.Log("1");
+                //    newPath.Add(hit.point);
+                //}
+            }
+        }
+        newPath.Add(path.corners[path.corners.Length - 1]);
 
-        return path.corners;
+        return newPath.ToArray();
     }
 
     void CountMeters()
     {
-        if (!isChoosenOne)
-            return;
+        //if (!isChoosenOne)
+        //    return;
 
         Vector3 currentPosition = transform.position;    // just make a copy for clarity
         float distance = Vector3.Distance(currentPosition, lastPosition);    // how far?
         odometerDistance += distance;        // accumulate
         movementPoints -= distance;         // calculate
         lastPosition = currentPosition;    // save your last position for next frame
-
-        battleUI.SetSteps(movementPoints);
+        if (isChoosenOne)
+            battleUI.SetSteps(movementPoints);
     }
 
     public void SetChoosenOne(bool choosen = true) { isChoosenOne = choosen; }

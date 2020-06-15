@@ -24,11 +24,21 @@ public class BattleManager : MonoBehaviour
     //private bool shotState = false;
 
     [SerializeField] BattleUI battleUI;
+    private LineRenderer lineRenderer;
 
     void Start()
     {
+        InitLineRenderer();
         //battleUI.shotButton.onClick.AddListener(ChangeShotState);
 
+    }
+
+    void InitLineRenderer()
+    {
+        lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.startColor = Color.red;
+        lineRenderer.endColor = Color.red;
     }
 
     private void EndTurnAction()
@@ -160,6 +170,43 @@ public class BattleManager : MonoBehaviour
     {
         CheckWinConditions();
         SetCastAvailable();
+        
+    }
+    private void LateUpdate()
+    {
+        ShowAttackLine();
+    }
+
+    private void ShowAttackLine()
+    {
+        if (GetAimChar() != null)
+        {
+            lineRenderer.positionCount = 2;
+            var attackPoint = GetAttackPoint();
+            lineRenderer.SetPositions(new Vector3[] { GetActiveChar().transform.position, GetAttackPoint() });
+        }
+        else
+            lineRenderer.positionCount = 0;
+    }
+
+    Vector3 GetAttackPoint()
+    {
+        Ray ray = new Ray();
+        var from = GetActiveChar();
+        var to = GetAimChar();
+        ray.origin = from.transform.position;
+        ray.direction = to.transform.position - from.transform.position;
+        //Debug.DrawRay(ray.origin, ray.direction * 300, Color.blue);
+        RaycastHit hit;
+        Physics.SyncTransforms();
+        if (Physics.Raycast(ray, out hit, 300)) // TODO change distance
+            return hit.point;
+        else
+            return to.transform.position;
+        //Debug.LogFormat("{0} {1}", hit.point, ActiveCharacters.Aggregate(false, (acc, p) => acc || !p.agent.isStopped));
+        //Debug.DrawRay(ray.origin, ray.direction * 300, Color.blue);
+        //Debug.Log(hit.collider.name);
+        //return hit.point;
     }
 
     void SetCastAvailable()
@@ -195,29 +242,32 @@ public class BattleManager : MonoBehaviour
         CharacterController activeChar = (character != null) ? character : GetActiveChar();
         if (activeChar == null)
             return false;
-        
-        var aimChar = to;
-        if (aimChar == null)
-        {
-            int index = int.MaxValue;
-            for (int i = 0; i < battleUI.enemyButtons.Length; ++i)
-                if (battleUI.enemyButtons[i].colors.normalColor == Color.red)
-                {
-                    index = i;
-                    break;
-                }
 
-            //var redBottuns = battleUI.enemyButtons.Where(button => button.colors.normalColor == Color.red).ToArray();
-            if (index < InactiveCharacters.Count)
+        var aimChar = (to != null) ? to : GetAimChar();
+
+        if (aimChar == null)
+            return false;
+
+        return Cast(character: activeChar, to: aimChar);
+    }
+
+    private CharacterController GetAimChar()
+    {
+        int index = int.MaxValue;
+        for (int i = 0; i < battleUI.enemyButtons.Length; ++i)
+            if (battleUI.enemyButtons[i].colors.normalColor == Color.red)
             {
-                aimChar = InactiveCharacters[index];
+                index = i;
+                break;
             }
-            else
-                return false;
+
+        //var redBottuns = battleUI.enemyButtons.Where(button => button.colors.normalColor == Color.red).ToArray();
+        if (index < InactiveCharacters.Count)
+        {
+            return InactiveCharacters[index];
         }
         else
-            return false;
-        return Cast(character: activeChar, to: aimChar);
+            return null;
     }
 
     private bool Cast(CharacterController character, CharacterController to)
