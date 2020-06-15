@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class BattleManager : MonoBehaviour
 {
+    //Test
     public GameObject[] characters = new GameObject[8];
 
     //public GameObject[] aliveCharacters = new GameObject[8];
