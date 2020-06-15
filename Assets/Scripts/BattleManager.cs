@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class BattleManager : MonoBehaviour
 {
     public GameObject[] characters = new GameObject[8];
 
-    public CharacterController[] TopCharacters => GetCharactersRange(true);
+    //public GameObject[] aliveCharacters = new GameObject[8];
 
-    public CharacterController[] BottomCharacters => GetCharactersRange(false);
+    public List<CharacterController> TopAliveCharacters;
 
-    public CharacterController[] ActiveCharacters => GetCharactersRange(isTopTurn);
+    public List<CharacterController> BottomAliveCharacters;
 
-    public CharacterController[] InactiveCharacters => GetCharactersRange(!isTopTurn);
+    public List<CharacterController> ActiveCharacters => GetCharactersRange(isTopTurn);
+
+    public List<CharacterController> InactiveCharacters => GetCharactersRange(!isTopTurn);
 
     public bool isTopTurn = true;
 
@@ -25,29 +28,89 @@ public class BattleManager : MonoBehaviour
     void Start()
     {
         //battleUI.shotButton.onClick.AddListener(ChangeShotState);
+
     }
 
-        //void ChangeShotState()
-        //{
-        //    shotState = !shotState;
-        //    battleUI.ShotOrMove(shotState);
-        //}
-
-        CharacterController[] GetCharacters()
+    private void EndTurnAction()
     {
-        return characters.Select(person => person.GetComponent<CharacterController>()).ToArray();
+        foreach (CharacterController character in InactiveCharacters)
+            character.RenewPoints();
+        isTopTurn = !isTopTurn;
+        if (ActiveCharacters.Count > 0)
+            ActiveCharacters[0].SetPlayerAsChoosenAndUpdateCamera();
     }
 
-    CharacterController[] GetCharactersRange(bool isFirst)
+    private void NextCharAction()
     {
-        return GetCharacters().Skip(isFirst ? 0 : 4).Take(4).ToArray();
+        var currentActiveChar = GetActiveChar();
+        for (int i = 0; i < ActiveCharacters.Count; ++i)
+        {
+            Debug.Log("(int i = 0; i < ActiveCharacters.Count; ++i): " + i);
+            if (ActiveCharacters[i] == currentActiveChar)
+            {
+                Debug.Log("ActiveCharacters[i] == currentActiveChar " + i);
+                var nextIndex = (i == ActiveCharacters.Count - 1) ? 0 : i + 1;
+                ActiveCharacters[nextIndex].SetPlayerAsChoosenAndUpdateCamera();
+                return;
+            }
+        }
+        Debug.Log("ActiveCharacters[0].SetPlayerAsChoosenAndUpdateCamera();");
+        ActiveCharacters[0].SetPlayerAsChoosenAndUpdateCamera();
+    }
+
+    private void CheckWinConditions()
+    {
+        var aliveActive = ActiveCharacters.Where(character => character.isAlive);
+        var aliveInactive = InactiveCharacters.Where(character => character.isAlive);
+        if (aliveActive == null || aliveActive.Count() <= 0)
+        {
+            var text = isTopTurn ? "Bottom team won!" : "Top team won!";
+            Debug.Log(text);
+            GameEnd();
+        }
+        else if (aliveInactive == null || aliveInactive.Count() <= 0)
+        {
+            var text = isTopTurn ? "Top team won!" : "Bottom team won!";
+            Debug.Log(text);
+            GameEnd();
+        }
+    }
+
+    public void GameEnd()
+    {
+        Debug.Log("The End");
+        SceneManager.LoadScene(SceneTag.Menu.ToString());
+    }
+
+    public void Configure()
+    {
+        TopAliveCharacters = characters.Take(4).Select(person => person.GetComponent<CharacterController>()).ToList();
+        BottomAliveCharacters = characters.Skip(4).Take(4).Select(person => person.GetComponent<CharacterController>()).ToList();
+        battleUI.endTurnButton.onClick.AddListener(EndTurnAction);
+        battleUI.nextCharButton.onClick.AddListener(NextCharAction);
+    }
+
+    //void ChangeShotState()
+    //{
+    //    shotState = !shotState;
+    //    battleUI.ShotOrMove(shotState);
+    //}
+
+    //CharacterController[] GetCharacters()
+    //{
+    //    return characters.Select(person => person.GetComponent<CharacterController>()).ToArray();
+    //}
+
+    List<CharacterController> GetCharactersRange(bool isTopTurn)
+    {
+        return isTopTurn ? TopAliveCharacters : BottomAliveCharacters;
     }
 
     public void DeselectAllCharacters()
     {
-        foreach (CharacterController character in ActiveCharacters)
+        foreach (GameObject characterObj in characters)
         {
-            character.SetChoosenOne(false);
+            characterObj.GetComponent<CharacterController>().SetChoosenOne(false);
         }
     }
 
@@ -95,19 +158,18 @@ public class BattleManager : MonoBehaviour
 
     void Update()
     {
+        CheckWinConditions();
         SetCastAvailable();
-
     }
 
     void SetCastAvailable()
     {
-        var activeChars = ActiveCharacters.Where(c => c.isChoosenOne).ToArray();
-        if (activeChars.Length > 0) //.Aggregate((_, x) => x.isChoosenOne ? x : _).gameObject;
+        var activeChar = GetActiveChar();
+        if (activeChar != null) //.Aggregate((_, x) => x.isChoosenOne ? x : _).gameObject;
         {
-            var activeChar = activeChars.First().gameObject;
             var arr = InactiveCharacters.Select(person => person.gameObject).ToArray();
             //List<GameObject> availableToCast = GetAvailableToCast(activeChar, arr);
-            ShowAvailableToCast(activeChar, arr);
+            ShowAvailableToCast(activeChar.gameObject, arr);
             //if (availableToCast.Count > 0)
             //{
             //    var colors = battleUI.shotButton.colors;
@@ -121,5 +183,67 @@ public class BattleManager : MonoBehaviour
             //    battleUI.shotButton.colors = colors;
             //}
         }
+    }
+
+    private CharacterController GetActiveChar()
+    {
+        return ActiveCharacters.SingleOrDefault(x => x.isChoosenOne);
+    }
+
+    public bool Shot(CharacterController character = null, CharacterController to = null)
+    {
+        CharacterController activeChar = (character != null) ? character : GetActiveChar();
+        if (activeChar == null)
+            return false;
+        
+        var aimChar = to;
+        if (aimChar == null)
+        {
+            int index = int.MaxValue;
+            for (int i = 0; i < battleUI.enemyButtons.Length; ++i)
+                if (battleUI.enemyButtons[i].colors.normalColor == Color.red)
+                {
+                    index = i;
+                    break;
+                }
+
+            //var redBottuns = battleUI.enemyButtons.Where(button => button.colors.normalColor == Color.red).ToArray();
+            if (index < InactiveCharacters.Count)
+            {
+                aimChar = InactiveCharacters[index];
+            }
+            else
+                return false;
+        }
+        else
+            return false;
+        return Cast(character: activeChar, to: aimChar);
+    }
+
+    private bool Cast(CharacterController character, CharacterController to)
+    {
+        if (CheckClose(character.transform.position, to.transform.position, character.GetComponent<CharacterController>().CastRange))
+        {
+            to.GotDamage(character.CastPower);
+            return true;
+        }
+        else
+            return false;
+    }
+
+    public void CharacterOutOfHealth(CharacterController character)
+    {
+        TopAliveCharacters.Remove(character);
+        BottomAliveCharacters.Remove(character);
+    }
+
+    public void CharacterAliveAgain(CharacterController character)
+    {
+        for (int i = 0; i < characters.Length; ++i)
+            if (characters[i] == character)
+                if (i < 4)
+                    TopAliveCharacters.Insert(i, character);
+                else
+                    BottomAliveCharacters.Insert(i - 4, character);
     }
 }

@@ -15,7 +15,8 @@ public interface ICharConsts
 {
     int SightRange { get; set; }
     int Health { get; set; }
-    int Power { get; set; }
+    int CastPower { get; set; }
+    int AttackPower { get; set; } 
     int MovementPoints { get; set; }
     int AttackRange { get; set; }
     int CastRange { get; set; }
@@ -58,8 +59,10 @@ public class Constants
         { get; set; } = 120;
         public int Health  // read-write instance property
         { get; set; } = 60;
-        public int Power  // read-write instance property
+        public int CastPower  // read-write instance property
         { get; set; } = 100;
+        public int AttackPower  // read-write instance property
+        { get; set; } = 50;
         public int MovementPoints  // read-write instance property
         { get; set; } = 55;
         public int AttackRange  // read-write instance property
@@ -74,7 +77,9 @@ public class Constants
         { get; set; } = 90;
         public int Health  // read-write instance property
         { get; set; } = 100;
-        public int Power  // read-write instance property
+        public int CastPower  // read-write instance property
+        { get; set; } = 120;
+        public int AttackPower  // read-write instance property
         { get; set; } = 120;
         public int MovementPoints  // read-write instance property
         { get; set; } = 50;
@@ -90,8 +95,10 @@ public class Constants
         { get; set; } = 110;
         public int Health  // read-write instance property
         { get; set; } = 100;
-        public int Power  // read-write instance property
+        public int CastPower  // read-write instance property
         { get; set; } = 80;
+        public int AttackPower  // read-write instance property
+        { get; set; } = 100;
         public int MovementPoints  // read-write instance property
         { get; set; } = 40;
         public int AttackRange  // read-write instance property
@@ -106,8 +113,10 @@ public class Constants
         { get; set; } = 80;
         public int Health  // read-write instance property
         { get; set; } = 50;
-        public int Power  // read-write instance property
+        public int CastPower  // read-write instance property
         { get; set; } = 120;
+        public int AttackPower  // read-write instance property
+        { get; set; } = 50;
         public int MovementPoints  // read-write instance property
         { get; set; } = 40;
         public int AttackRange  // read-write instance property

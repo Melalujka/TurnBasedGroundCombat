@@ -30,5 +30,6 @@ public class SpawnManager : MonoBehaviour
             prefabBottom.GetComponent<CharacterController>().battleUI = battleUI;
             manager.characters[i + 4] = prefabBottom;
         }
+        manager.Configure();
     }
 }
